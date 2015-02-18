@@ -7,84 +7,69 @@ import (
 	"fmt"
 )
 
-type Entity interface {
-	GetID() uint
-	GetUniqueID() uint
-	GetSystemBits() int64
-	GetTypeBits() int64
-	AddTypeBit(bit int64)
-	AddSystemBit(bit int64)
-	RemoveTypeBit(bit int64)
-	RemoveSystemBit(bit int64)
-	Reset()
-	AddComponent(c Component)
-	RemoveComponent(c Component)
-	IsActive() bool
-}
-
-type BaseEntity struct {
-	id            uint
-	uniqueId      uint
+type Entity struct {
+	id            int
+	uniqueId      int
 	systemBits    int64
 	typeBits      int64
-	world         *World
+	world         World
 	entityManager *EntityManager
 }
 
-func NewEntity(world *World, id uint) *BaseEntity {
-	return &BaseEntity{id, 0, 0, 0, world, world.entityManager}
+func NewEntity(world World, id int) *Entity {
+	return &Entity{id, 0, 0, 0, world, world.GetEntityManager()}
 }
 
-func (e *BaseEntity) GetID() uint {
+func (e *Entity) GetID() int {
 	return e.id
 }
 
-func (e *BaseEntity) GetUniqueID() uint {
+func (e *Entity) GetUniqueID() int {
 	return e.uniqueId
 }
 
-func (e *BaseEntity) AddTypeBit(bit int64) {
+func (e *Entity) AddTypeBit(bit int64) {
 	e.typeBits |= bit
 }
 
-func (e *BaseEntity) AddSystemBit(bit int64) {
+func (e *Entity) AddSystemBit(bit int64) {
 	e.systemBits |= bit
 }
 
-func (e *BaseEntity) RemoveSystemBit(bit int64) {
+func (e *Entity) RemoveSystemBit(bit int64) {
 	e.typeBits &= ^bit
 }
 
-func (e *BaseEntity) RemoveTypeBit(bit int64) {
+func (e *Entity) RemoveTypeBit(bit int64) {
 	e.typeBits &= ^bit
 }
 
-func (e *BaseEntity) GetSystemBits() int64 {
+func (e *Entity) GetSystemBits() int64 {
 	return e.systemBits
 }
 
-func (e *BaseEntity) GetTypeBits() int64 {
+func (e *Entity) GetTypeBits() int64 {
 	return e.typeBits
 }
 
-func (e *BaseEntity) Reset() {
+func (e *Entity) Reset() {
 	e.typeBits = 0
 	e.systemBits = 0
 }
 
-func (e *BaseEntity) String() string {
+func (e *Entity) String() string {
 	return fmt.Sprintf("Entity[%d]", e.id)
 }
 
 //this is the preferred method to use when retrieving a component from a entity.
 //It will provide good performance.
-func (e *BaseEntity) GetComponent(ctype ComponentType) Component {
+func (e *Entity) GetComponent(ctype ComponentType) Component {
 	return e.entityManager.GetComponent(e, &ctype)
 }
 
 //Slower retrieval of components from this entity.
 //Minimize usage of this, but is fine to use e.g. when creating new entities and setting data in components.
-func (e *BaseEntity) GetComponentByType(ct ComponentType) Component {
+func (e *Entity) GetComponentByType(ct ComponentType) Component {
 	//return e.entityManager.GetComponent(e, ct)
 	return nil
 }
@@ -92,22 +77,45 @@ func (e *BaseEntity) GetComponentByType(ct ComponentType) Component {
 // Get all components belonging to this entity.
 // * WARNING. Use only for debugging purposes, it is dead slow.
 // * WARNING. The returned bag is only valid until this method is called again, then it is overwritten.
-func (e *BaseEntity) GetAllComponents() []Component {
-	return e.entityManager.GetComponents()
+func (e *Entity) GetAllComponents() *ComponentBag {
+	return e.entityManager.GetComponents(e)
 }
 
-func (e *BaseEntity) AddComponent(c Component) {
+func (e *Entity) AddComponent(c Component) {
 	e.entityManager.AddComponent(e, c)
 }
 
-func (e *BaseEntity) RemoveComponent(c Component) {
+func (e *Entity) RemoveComponent(c Component) {
 	e.entityManager.RemoveComponent(e, c)
 }
 
-func (e *BaseEntity) RemoveComponentByType(ct ComponentType) {
-	e.entityManager.RemoveComponentByType(e, ct)
+func (e *Entity) RemoveComponentByType(ctype *ComponentType) {
+	e.entityManager.RemoveComponentByType(e, ctype)
 }
 
-func (e *BaseEntity) IsActive() bool {
+func (e *Entity) IsActive() bool {
 	return e.entityManager.IsActive(e.GetID())
+}
+
+// Refresh all changes to components for this entity.
+//After adding or removing components, you must call this method.
+//It will update all relevant systems.
+// It is typical to call this after adding components to a newly created entity.
+func (e *Entity) Refresh() {
+	e.world.RefreshEntity(e)
+}
+
+// Delete this entity from the world.
+func (e *Entity) Delete() {
+	e.world.DeleteEntity(e)
+}
+
+//Set the group of the entity. Same as World.setGroup().
+func (e *Entity) SetGroup(group string) {
+	//e.world.groupManager().Set(group, e)
+}
+
+// Assign a tag to this entity. Same as World.setTag().
+func (e *Entity) SetTag(tag string) {
+	//	e.world.tagManager().Register(tag, e)
 }

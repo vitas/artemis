@@ -4,42 +4,55 @@ import (
 	"fmt"
 )
 
-type BaseEntityBag struct {
-	data []*BaseEntity
+type Bag interface {
+	Get(idx int) Entity
+	Size() int
+	IsEmpty() bool
+	Contains(e Entity) bool
+	Add(e ...Entity)
+	Set(idx int, e Entity)
+	Remove(idx int) Entity
+	RemoveEntity(e Entity) bool
+	Grow()
+	GrowSize(sz int)
+}
+
+type EntityBag struct {
+	data []*Entity
 	size int
 }
 
-func New() *BaseEntityBag {
-	return &BaseEntityBag{make([]*BaseEntity, 64), 0}
+func NewEntityBag(c int) *EntityBag {
+	return &EntityBag{make([]*Entity, c), 0}
 }
 
-func NewCap(c int) *BaseEntityBag {
-	return &BaseEntityBag{make([]*BaseEntity, c), 0}
+func (eb *EntityBag) String() string {
+	return fmt.Sprintf("%#v", eb.data)
 }
 
-func (eb *BaseEntityBag) Get(idx int) *BaseEntity {
+func (eb *EntityBag) Get(idx int) *Entity {
 	return eb.data[idx]
 }
 
-func (eb *BaseEntityBag) Size() int {
+func (eb *EntityBag) Size() int {
 	return eb.size
 }
 
-func (eb *BaseEntityBag) GetCapacity() int {
+func (eb *EntityBag) GetCapacity() int {
 	return len(eb.data)
 }
 
-func (eb *BaseEntityBag) IsEmpty() bool {
+func (eb *EntityBag) IsEmpty() bool {
 	return eb.size == 0
 }
 
-func (eb *BaseEntityBag) Clear() {
+func (eb *EntityBag) Clear() {
 	for i := 0; i < eb.size-1; i++ {
 		eb.data[i] = nil
 	}
 }
 
-func (eb *BaseEntityBag) Add(entities ...*BaseEntity) {
+func (eb *EntityBag) Add(entities ...*Entity) {
 	for _, e := range entities {
 		if eb.size == len(eb.data) {
 			eb.Grow()
@@ -49,7 +62,7 @@ func (eb *BaseEntityBag) Add(entities ...*BaseEntity) {
 	}
 }
 
-func (eb *BaseEntityBag) Contains(e *BaseEntity) bool {
+func (eb *EntityBag) Contains(e *Entity) bool {
 	for _, ie := range eb.data {
 		if ie == e {
 			return true
@@ -58,7 +71,7 @@ func (eb *BaseEntityBag) Contains(e *BaseEntity) bool {
 	return false
 }
 
-func (eb *BaseEntityBag) Remove(idx int) *BaseEntity {
+func (eb *EntityBag) Remove(idx int) *Entity {
 	ce := eb.data[idx] // make copy of element to remove so it can be returned
 	eb.size--
 	eb.data[idx] = eb.data[eb.size] // overwrite item to remove with last element
@@ -66,7 +79,7 @@ func (eb *BaseEntityBag) Remove(idx int) *BaseEntity {
 	return ce
 }
 
-func (eb *BaseEntityBag) RemoveEntity(e *BaseEntity) bool {
+func (eb *EntityBag) RemoveEntity(e *Entity) bool {
 	for idx, ie := range eb.data {
 		if ie == e {
 			eb.Remove(idx)
@@ -76,57 +89,126 @@ func (eb *BaseEntityBag) RemoveEntity(e *BaseEntity) bool {
 	return false
 }
 
-func (eb *BaseEntityBag) Set(idx uint, e *BaseEntity) {
-	var lidx int
-	lidx = (int)(idx)
-	if lidx >= len(eb.data) {
-		eb.GrowSize(lidx * 2)
+func (eb *EntityBag) Set(idx int, e *Entity) {
+	if idx >= len(eb.data) {
+		eb.GrowSize(idx * 2)
 	}
-	eb.size = lidx + 1
+	eb.size = idx + 1
 	eb.data[idx] = e
 }
 
-func (eb *BaseEntityBag) Grow() {
+func (eb *EntityBag) Grow() {
 	newCapacity := (len(eb.data)*3)/2 + 1
 	eb.GrowSize(newCapacity)
 }
 
-func (eb *BaseEntityBag) GrowSize(gsize int) {
-	ndata := make([]*BaseEntity, gsize)
+func (eb *EntityBag) GrowSize(gsize int) {
+	ndata := make([]*Entity, gsize)
 	eb.data = append(eb.data, ndata...)
 	// replace with copy? need test performance first
 }
 
-func (eb *BaseEntityBag) RemoveLast() *BaseEntity {
+func (eb *EntityBag) RemoveLast() *Entity {
 	if eb.IsEmpty() {
 		return nil
 	}
 	return eb.Remove(eb.size - 1)
 }
 
-type UIntList struct {
-	uintlist []uint
+type ComponentBag struct {
+	data []Component
+	size int
 }
 
-func NewUIntList() *UIntList {
-	return &UIntList{[]uint{}}
+func NewComponentBag(c int) *ComponentBag {
+	return &ComponentBag{make([]Component, c), 0}
 }
 
-func (il *UIntList) Size() int {
-	return len(il.uintlist)
+func (cb *ComponentBag) String() string {
+	return fmt.Sprintf("%#v", cb.data)
 }
 
-func (il *UIntList) Pop() {
-	if len(il.uintlist) == 0 {
-		return
+func (cb *ComponentBag) Get(idx int) Component {
+	return cb.data[idx]
+}
+
+func (cb *ComponentBag) Size() int {
+	return cb.size
+}
+
+func (cb *ComponentBag) GetCapacity() int {
+	return len(cb.data)
+}
+
+func (cb *ComponentBag) IsEmpty() bool {
+	return cb.size == 0
+}
+
+func (cb *ComponentBag) Clear() {
+	for i := 0; i < cb.size-1; i++ {
+		cb.data[i] = nil
 	}
-	il.uintlist = il.uintlist[:len(il.uintlist)-1]
 }
 
-func (il *UIntList) Add(i ...uint) {
-	il.uintlist = append(il.uintlist, i...)
+func (cb *ComponentBag) Add(components ...Component) {
+	for _, e := range components {
+		if cb.size == len(cb.data) {
+			cb.Grow()
+		}
+		cb.data[cb.size] = e
+		cb.size++
+	}
 }
 
-func (il *UIntList) String() string {
-	return fmt.Sprintf("%#v", il.uintlist)
+func (cb *ComponentBag) Contains(c Component) bool {
+	for _, ic := range cb.data {
+		if ic == c {
+			return true
+		}
+	}
+	return false
+}
+
+func (cb *ComponentBag) Remove(idx int) Component {
+	cc := cb.data[idx] // make copy of element to remove so it can be returned
+	cb.size--
+	cb.data[idx] = cb.data[cb.size] // overwrite item to remove with last element
+	cb.data[cb.size] = nil          // null last element, so gc can do its work
+	return cc
+}
+
+func (cb *ComponentBag) RemoveComponent(c Component) bool {
+	for idx, ic := range cb.data {
+		if &ic == &c {
+			cb.Remove(idx)
+			return true
+		}
+	}
+	return false
+}
+
+func (cb *ComponentBag) Set(idx int, c Component) {
+	if idx >= len(cb.data) {
+		cb.GrowSize(idx * 2)
+	}
+	cb.size = idx + 1
+	cb.data[idx] = c
+}
+
+func (cb *ComponentBag) Grow() {
+	newCapacity := (len(cb.data)*3)/2 + 1
+	cb.GrowSize(newCapacity)
+}
+
+func (cb *ComponentBag) GrowSize(gsize int) {
+	ndata := make([]Component, gsize)
+	cb.data = append(cb.data, ndata...)
+	// replace with copy? need test performance first
+}
+
+func (cb *ComponentBag) RemoveLast() Component {
+	if cb.IsEmpty() {
+		return nil
+	}
+	return cb.Remove(cb.size - 1)
 }

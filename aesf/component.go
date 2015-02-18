@@ -1,9 +1,9 @@
-// Package main provides ...
+// Package aesf provides ...
 package aesf
 
 import (
 	"fmt"
-	"reflect"
+	//"reflect"
 )
 
 var (
@@ -16,7 +16,16 @@ func init() {
 		make(map[CTypeName]int), make(map[CTypeName]int64)}
 }
 
-type CTypeName reflect.Value
+type CTypeName string
+
+//A tag component. All components in the system must extend this class.
+type Component interface {
+	GetCType() CTypeName
+}
+
+func (ctn CTypeName) String() string {
+	return fmt.Sprintf("CTypeName[%s]", ctn)
+}
 
 // static stuct with some methods
 type ComponentTypeManager struct {
@@ -59,9 +68,6 @@ func (ctm *ComponentTypeManager) nextCtBIT(ctname CTypeName) int64 {
 	return bit
 }
 
-// abstract component
-type Component interface{}
-
 //create only via NewComponentType func
 type ComponentType struct {
 	typename CTypeName
@@ -91,11 +97,11 @@ type ComponentMapper struct {
 	entityManager *EntityManager
 }
 
-func NewComponentMapper(ctname CTypeName, w *World) *ComponentMapper {
+func NewComponentMapper(ctname CTypeName, w World) *ComponentMapper {
 	ctype := componentTypeManager.getTypeFor(ctname)
-	return &ComponentMapper{ctype, ctname, w.entityManager}
+	return &ComponentMapper{ctype, ctname, w.GetEntityManager()}
 }
 
-func (cm *ComponentMapper) Get(e Entity) Component {
-	return cm.entityManager.getComponent(e, cm.ctype)
+func (cm *ComponentMapper) Get(e *Entity) Component {
+	return cm.entityManager.GetComponent(e, cm.ctype)
 }
