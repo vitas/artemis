@@ -6,8 +6,6 @@ import (
 )
 
 func main() {
-	fmt.Println("Init World!")
-	pWorld := new(World)
-	pWorld.Initialize()
-
+	world := NewEntityWorld()
+	fmt.Println(&world)
 }

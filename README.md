@@ -7,6 +7,13 @@ and is a framework to manage entities in a game world.
 It is inspired by Entity Systems are the future of MMORPG articles by Adam Martin on t-machine.org.
 We also borrowed ideas from Ted Brown who implemented a simple high-performance Entity System in Processing.
 
-Basically, this is a Java port of known Artemis project
-- [@artemis](http://http://gamadu.com/artemis/)
+Basically, this is a Java port of enchanced Artemis project
+- [gemserk/artemis](http://github.com/gemserk/artemis)
+
+Please visit official site
+    
+- [artemis HOME](http://gamadu.com/artemis/)
+
+
+
 
