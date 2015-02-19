@@ -6,12 +6,20 @@ import (
 )
 
 type World interface {
-	GetName()
+	GetName() string
 	Initialize()
 	GetEntityManager() *EntityManager
+	GetManagers() []Manager
+	CreateEntity() *Entity
+	GetEntity(id int) *Entity
 	RefreshEntity(e *Entity)
 	DeleteEntity(e *Entity)
+	GetDelta() int
+	SetDelta(delta int)
+	LoopStart()
 }
+
+const ENTITY_BAG_CAP = 32
 
 // The primary instance for the framework. It contains all the managers.
 // You must use this to create, delete and retrieve entities.
@@ -19,20 +27,23 @@ type World interface {
 type EntityWorld struct {
 	name          string
 	entityManager *EntityManager
+	tagManager    *TagManager
 	delta         int
 	refreshed     *EntityBag
 	deleted       *EntityBag
 	managers      []Manager
 }
 
+//Use this func to create a new entity world
 func NewEntityWorld() EntityWorld {
 	w := EntityWorld{name: "EntityWorld"}
-	w.entityManager = NewEntityManager()
-	//	w.managers = []Manager{}
-	w.managers = append(w.managers, w.entityManager)
+	w.refreshed = NewEntityBag(ENTITY_BAG_CAP)
+	w.deleted = NewEntityBag(ENTITY_BAG_CAP)
+	w.entityManager = NewEntityManager(&w)
+	w.tagManager = NewTagManager(&w)
+	w.managers = append(w.managers, w.entityManager, w.tagManager)
 	//TODO
 	//groupManager
-	//tagManager
 	return w
 }
 
@@ -44,40 +55,44 @@ func (w EntityWorld) String() string {
 	return fmt.Sprintf("[%s]", w.name)
 }
 
-func (w EntityWorld) GetName() string {
-	return w.name
-}
-
 //Get a entity having the specified id.
 func (w EntityWorld) GetEntityManager() *EntityManager {
 	return w.entityManager
 }
 
+func (w EntityWorld) GetManagers() []Manager {
+	return w.managers
+}
+
 //Ensure all systems are notified of changes to this entity.
-func (w *EntityWorld) RefreshEntity(e *Entity) {
+func (w EntityWorld) RefreshEntity(e *Entity) {
 	w.refreshed.Add(e)
 }
 
 //Delete the provided entity from the world.
-func (w *EntityWorld) DeleteEntity(e *Entity) {
+func (w EntityWorld) DeleteEntity(e *Entity) {
 	if !w.deleted.Contains(e) {
 		w.deleted.Add(e)
 	}
 }
 
 //Create and return a new or reused entity instance.
-func (w *EntityWorld) CreateEntity() *Entity {
+func (w EntityWorld) CreateEntity() *Entity {
 	return w.entityManager.Create()
 }
 
 //Get a entity having the specified id.
-func (w *EntityWorld) GetEntity(id int) *Entity {
+func (w EntityWorld) GetEntity(id int) *Entity {
 	return w.entityManager.GetEntity(id)
+}
+
+func (w EntityWorld) GetName() string {
+	return w.name
 }
 
 // Time since last game loop.
 // delta in milliseconds.
-func (w *EntityWorld) GetDelta() int {
+func (w EntityWorld) GetDelta() int {
 	return w.delta
 }
 

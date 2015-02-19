@@ -7,5 +7,9 @@ import (
 
 func main() {
 	world := NewEntityWorld()
+
 	fmt.Println(&world)
+
+	world.LoopStart()
+
 }

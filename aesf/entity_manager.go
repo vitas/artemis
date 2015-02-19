@@ -26,8 +26,9 @@ type EntityManager struct {
 	componentsByType    map[int]*ComponentBag
 }
 
-func NewEntityManager() *EntityManager {
+func NewEntityManager(w World) *EntityManager {
 	em := new(EntityManager)
+	em.world = w
 	em.identPool = &IdentifierPool{NewIntList(), 0}
 	em.activeEntities = NewEntityBag(COMPONENT_ACTIVE_BAG_CAP)
 	em.removedAndAvailable = NewEntityBag(COMPONENT_REUSED_BAG_CAP)
@@ -40,19 +41,12 @@ func (em *EntityManager) Initialize() {
 
 }
 
-func (em *EntityManager) SetWorld(w World) {
-	em.world = w
-}
-func (em *EntityManager) GetWorld() World {
-	return em.world
-}
-
 func (em *EntityManager) Create() *Entity {
 	e := em.removedAndAvailable.RemoveLast()
 	if e == nil {
 		em.nextAvailableId++
 		//e := NewEntity(em.GetWorld(), em.identPool.CheckOut())
-		e = NewEntity(em.GetWorld(), em.nextAvailableId)
+		e = NewEntity(em.world, em.nextAvailableId)
 		//e = new Entity(world, nextAvailableId++);
 	} else {
 		e.Reset()

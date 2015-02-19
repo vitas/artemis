@@ -57,7 +57,7 @@ func (e *Entity) Reset() {
 	e.systemBits = 0
 }
 
-func (e *Entity) String() string {
+func (e Entity) String() string {
 	return fmt.Sprintf("Entity[%d]", e.id)
 }
 
