@@ -1,9 +1,7 @@
 // Package main provides ...
 package aesf
 
-import (
-	bitset "github.com/willf/bitset"
-)
+import ()
 
 const COMPONENT_BAG_CAP = 16
 const COMPONENT_ACTIVE_BAG_CAP = 64
@@ -17,7 +15,6 @@ type EntityManager struct {
 	uniqueEntityId      int
 	totalCreated        int
 	totalRemoved        int
-	disabled            *bitset.BitSet
 	entities            *EntityBag
 	identPool           *IdentifierPool
 	activeEntities      *EntityBag
@@ -37,6 +34,7 @@ func NewEntityManager(w World) *EntityManager {
 	return em
 }
 
+//implements Manager
 func (em *EntityManager) Initialize() {
 
 }
@@ -63,16 +61,15 @@ func (em *EntityManager) GetEntity(entityId int) *Entity {
 	return em.activeEntities.Get(entityId)
 }
 
-//TODO
+//implements Manager
 func (em *EntityManager) Refresh(e *Entity) {
-	/*systemManager := em.world.getSystemManager();
-	Bag<EntitySystem> systems = systemManager.GetSystems();
-	for(int i = 0, s=systems.size(); s > i; i++) {
-		systems.Get(i).change(e);
+	systems := em.world.GetSystemManager().GetSystems()
+	for _, system := range systems {
+		system.Change(e)
 	}
-	*/
 }
 
+//implements Manager
 func (em *EntityManager) Remove(e *Entity) {
 	em.activeEntities.Set(e.GetID(), nil)
 	e.typeBits = 0
@@ -139,7 +136,7 @@ func (em *EntityManager) GetComponents(e *Entity) *ComponentBag {
 }
 
 func (em *EntityManager) AddComponent(e *Entity, c Component) {
-	ctype := componentTypeManager.getTypeFor(c.GetCType())
+	ctype := gComponentTypeManager.getTypeFor(c.GetCType())
 
 	if ctype.GetID() >= len(em.componentsByType) {
 		em.componentsByType[ctype.GetID()] = nil
@@ -154,7 +151,7 @@ func (em *EntityManager) AddComponent(e *Entity, c Component) {
 }
 
 func (em *EntityManager) RemoveComponent(e *Entity, c Component) {
-	ctype := componentTypeManager.getTypeFor(c.GetCType())
+	ctype := gComponentTypeManager.getTypeFor(c.GetCType())
 	em.RemoveComponentByType(e, ctype)
 }
 

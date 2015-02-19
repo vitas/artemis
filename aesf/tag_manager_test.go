@@ -10,6 +10,7 @@ type MockWorld struct{}
 func (mw MockWorld) GetName() string                  { return "MockWorld" }
 func (mw *MockWorld) Initialize()                     {}
 func (mw MockWorld) GetEntityManager() *EntityManager { return nil }
+func (mw MockWorld) GetSystemManager() *SystemManager { return nil }
 func (mw MockWorld) RefreshEntity(e *Entity)          {}
 func (mw MockWorld) DeleteEntity(e *Entity)           {}
 func (mw MockWorld) CreateEntity() *Entity            { return nil }

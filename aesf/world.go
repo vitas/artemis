@@ -9,6 +9,7 @@ type World interface {
 	GetName() string
 	Initialize()
 	GetEntityManager() *EntityManager
+	GetSystemManager() *SystemManager
 	GetManagers() []Manager
 	CreateEntity() *Entity
 	GetEntity(id int) *Entity
@@ -27,7 +28,9 @@ const ENTITY_BAG_CAP = 32
 type EntityWorld struct {
 	name          string
 	entityManager *EntityManager
+	systemManager *SystemManager
 	tagManager    *TagManager
+	groupManager  *GroupManager
 	delta         int
 	refreshed     *EntityBag
 	deleted       *EntityBag
@@ -40,10 +43,9 @@ func NewEntityWorld() EntityWorld {
 	w.refreshed = NewEntityBag(ENTITY_BAG_CAP)
 	w.deleted = NewEntityBag(ENTITY_BAG_CAP)
 	w.entityManager = NewEntityManager(&w)
+	w.systemManager = NewSystemManager(&w)
 	w.tagManager = NewTagManager(&w)
-	w.managers = append(w.managers, w.entityManager, w.tagManager)
-	//TODO
-	//groupManager
+	w.managers = append(w.managers, w.entityManager, w.tagManager, w.groupManager)
 	return w
 }
 
@@ -55,9 +57,12 @@ func (w EntityWorld) String() string {
 	return fmt.Sprintf("[%s]", w.name)
 }
 
-//Get a entity having the specified id.
 func (w EntityWorld) GetEntityManager() *EntityManager {
 	return w.entityManager
+}
+
+func (w EntityWorld) GetSystemManager() *SystemManager {
+	return w.systemManager
 }
 
 func (w EntityWorld) GetManagers() []Manager {

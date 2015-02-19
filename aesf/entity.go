@@ -1,12 +1,11 @@
-// Entity.
-//Cannot be instantiated outside the framework
-// must be created using World
 package aesf
 
 import (
 	"fmt"
 )
 
+//Cannot be instantiated outside the framework,
+//you must create new entities using World.
 type Entity struct {
 	id            int
 	uniqueId      int
@@ -16,6 +15,7 @@ type Entity struct {
 	entityManager *EntityManager
 }
 
+// use thiss method to create entity
 func NewEntity(world World, id int) *Entity {
 	return &Entity{id, 0, 0, 0, world, world.GetEntityManager()}
 }
@@ -63,15 +63,14 @@ func (e Entity) String() string {
 
 //this is the preferred method to use when retrieving a component from a entity.
 //It will provide good performance.
-func (e *Entity) GetComponent(ctype ComponentType) Component {
-	return e.entityManager.GetComponent(e, &ctype)
+func (e *Entity) GetComponent(ctype *ComponentType) Component {
+	return e.entityManager.GetComponent(e, ctype)
 }
 
 //Slower retrieval of components from this entity.
 //Minimize usage of this, but is fine to use e.g. when creating new entities and setting data in components.
-func (e *Entity) GetComponentByType(ct ComponentType) Component {
-	//return e.entityManager.GetComponent(e, ct)
-	return nil
+func (e *Entity) GetComponentByType(ctname CTypeName) Component {
+	return e.GetComponent(gComponentTypeManager.getTypeFor(ctname))
 }
 
 // Get all components belonging to this entity.
@@ -81,14 +80,17 @@ func (e *Entity) GetAllComponents() *ComponentBag {
 	return e.entityManager.GetComponents(e)
 }
 
+//Add a component to this entity.
 func (e *Entity) AddComponent(c Component) {
 	e.entityManager.AddComponent(e, c)
 }
 
+//Removes the component from this entity.
 func (e *Entity) RemoveComponent(c Component) {
 	e.entityManager.RemoveComponent(e, c)
 }
 
+//Faster removal of components from a entity.
 func (e *Entity) RemoveComponentByType(ctype *ComponentType) {
 	e.entityManager.RemoveComponentByType(e, ctype)
 }

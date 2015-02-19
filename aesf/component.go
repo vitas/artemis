@@ -6,6 +6,8 @@ import (
 
 type CTypeName string
 
+const CTYPE_NAME_UNKNOWN = "Unknown"
+
 //A tag component. All components in the system must extend this class.
 type Component interface {
 	GetCType() CTypeName

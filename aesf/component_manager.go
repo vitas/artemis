@@ -6,12 +6,12 @@ import (
 )
 
 var (
-	componentTypeManager ComponentTypeManager
+	gComponentTypeManager ComponentTypeManager
 )
 
 //package initialization
 func init() {
-	componentTypeManager = ComponentTypeManager{make(map[CTypeName]*ComponentType),
+	gComponentTypeManager = ComponentTypeManager{make(map[CTypeName]*ComponentType),
 		make(map[CTypeName]int), make(map[CTypeName]int64)}
 }
 
@@ -63,7 +63,7 @@ type ComponentMapper struct {
 }
 
 func NewComponentMapper(ctname CTypeName, w World) *ComponentMapper {
-	ctype := componentTypeManager.getTypeFor(ctname)
+	ctype := gComponentTypeManager.getTypeFor(ctname)
 	return &ComponentMapper{ctype, ctname, w.GetEntityManager()}
 }
 

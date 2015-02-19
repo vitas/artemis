@@ -1,8 +1,23 @@
 package aesf
 
 import (
+	"errors"
 	"fmt"
 )
+
+func ConvertTypeToString(any interface{}) (CTypeName, error) {
+	if any == nil {
+		return CTYPE_NAME_UNKNOWN, errors.New("cannot get typename, unknown set")
+	}
+	stname := (CTypeName)(fmt.Sprintf("%T", any))
+	if len(stname) <= 1 {
+		return CTYPE_NAME_UNKNOWN, errors.New("cannot get typename, unknown set")
+	}
+	if stname[0:1] == "*" {
+		stname = stname[1:len(stname)]
+	}
+	return stname, nil
+}
 
 type IntList struct {
 	uintlist []int

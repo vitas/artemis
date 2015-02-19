@@ -17,7 +17,8 @@ func NewTagManager(w World) *TagManager {
 	return &tm
 }
 
-func (em *TagManager) Initialize() {
+//implements Manager
+func (tm *TagManager) Initialize() {
 }
 
 func (tm *TagManager) GetTags() map[string]*Entity {
@@ -44,6 +45,7 @@ func (tm TagManager) GetEntity(tag string) *Entity {
 	return tm.entityByTag[tag]
 }
 
+//implements Manager
 func (tm *TagManager) Remove(e *Entity) {
 	for tag, ei := range tm.entityByTag {
 		if ei == e {
@@ -53,5 +55,6 @@ func (tm *TagManager) Remove(e *Entity) {
 	}
 }
 
+//TODO re-tagging?
 //do nothing, just implement manager
 func (tm *TagManager) Refresh(e *Entity) {}

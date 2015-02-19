@@ -53,7 +53,7 @@ func (gm *GroupManager) getEntities(group string) *EntityBag {
 }
 
 //the name of the group that this entity belongs to, null if none.
-func (gm *GroupManager) GetGroupOf(e *Entity) string {
+func (gm GroupManager) GetGroupOf(e *Entity) string {
 	return gm.groupByEntity[e.GetID()]
 }
 
