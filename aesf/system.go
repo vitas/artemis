@@ -7,6 +7,6 @@ type System interface {
 	Initialize()
 	Begin()
 	Process()
-	IsProcessing() bool
+	CheckProcessing() bool
 	End()
 }

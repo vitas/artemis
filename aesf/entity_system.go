@@ -18,6 +18,7 @@ type EntitySystem interface {
 	EntitySystemEventDelegate
 	ProcessEntities(entities *EntityBag)
 	SetWorld(w World)
+	GetWorld() World
 	SetSystemBit(bit int64)
 	Change(e *Entity)
 	Remove(e *Entity)
@@ -48,6 +49,10 @@ func (em *EntitySystemImpl) SetWorld(w World) {
 	em.world = w
 }
 
+func (em *EntitySystemImpl) GetWorld() World {
+	return em.world
+}
+
 //implements EntitySystem
 func (em *EntitySystemImpl) SetEventDelegate(ev EntitySystemEventDelegate) {
 	em.eventDelegate = ev
@@ -62,8 +67,8 @@ func (em *EntitySystemImpl) Begin() {}
 func (em *EntitySystemImpl) ProcessEntities(actives *EntityBag) {}
 
 //implements system interface
-func (em *EntitySystemImpl) IsProcessing() bool {
-	return false
+func (em *EntitySystemImpl) CheckProcessing() bool {
+	return true
 }
 
 //implements system interface
@@ -71,7 +76,7 @@ func (em *EntitySystemImpl) End() {}
 
 //implements system interface
 func (em *EntitySystemImpl) Process() {
-	if em.IsProcessing() {
+	if em.CheckProcessing() {
 		em.Begin()
 		em.ProcessEntities(em.actives)
 		em.End()
@@ -118,11 +123,15 @@ func GetMergedTypes(requiredType CTypeName, otherTypes ...CTypeName) []CTypeName
 // Called if the system has received a entity it is interested in, e.g. created or a component was added to it.
 //@param e the entity that was added to this system.
 func (em *EntitySystemImpl) Added(e *Entity) {
-	em.eventDelegate.Added(e)
+	if em.eventDelegate != nil {
+		em.eventDelegate.Added(e)
+	}
 }
 
 // Called if a entity was removed from this system, e.g. deleted or had one of it's components removed.
 // @param e the entity that was removed from this system.
 func (em *EntitySystemImpl) Removed(e *Entity) {
-	em.eventDelegate.Removed(e)
+	if em.eventDelegate != nil {
+		em.eventDelegate.Removed(e)
+	}
 }
