@@ -3,7 +3,7 @@ package aesf
 import ()
 
 //callbacks
-type EntitySystemEvent interface {
+type EntitySystemEventDelegate interface {
 	// Called if the system has received a entity it is interested in, e.g. created or a component was added to it.
 	//@param e the entity that was added to this system.
 	Added(e *Entity)
@@ -15,47 +15,97 @@ type EntitySystemEvent interface {
 //extends System interface
 type EntitySystem interface {
 	System
-	processEntities(entities *EntityBag)
+	EntitySystemEventDelegate
+	ProcessEntities(entities *EntityBag)
 	SetWorld(w World)
 	SetSystemBit(bit int64)
 	Change(e *Entity)
 	Remove(e *Entity)
+	SetEventDelegate(ev EntitySystemEventDelegate)
 }
 
 // The most raw entity system.
 // It is recommended that you use the other provided entity system implementations.
 // delegate some work to it (see IntervalEntitySystem as an example)
-type EntitySystemHelper struct {
-	systemBit int64
-	typeFlags int64
-	actives   *EntityBag
+type EntitySystemImpl struct {
+	world         World
+	eventDelegate EntitySystemEventDelegate
+	systemBit     int64
+	typeFlags     int64
+	actives       *EntityBag
 }
 
 // Create new entity system only via this func
-func NewEntitySystemHelper(ctnames ...CTypeName) *EntitySystemHelper {
-	bes := new(EntitySystemHelper)
-	bes.actives = NewEntityBag(16)
-	bes.registerTypesNames(ctnames...)
-	return bes
+func NewEntitySystem(world World, ctnames ...CTypeName) *EntitySystemImpl {
+	es := new(EntitySystemImpl)
+	es.SetWorld(world)
+	es.actives = NewEntityBag(16)
+	es.registerTypesNames(ctnames...)
+	return es
 }
 
-func (em *EntitySystemHelper) registerTypesNames(ctnames ...CTypeName) {
-	for _, ctname := range ctnames {
-		ctype := gComponentTypeManager.getTypeFor(ctname)
-		em.typeFlags |= ctype.GetBit()
-	}
+func (em *EntitySystemImpl) SetWorld(w World) {
+	em.world = w
 }
 
 //implements EntitySystem
-func (em *EntitySystemHelper) Change(e *Entity) {
+func (em *EntitySystemImpl) SetEventDelegate(ev EntitySystemEventDelegate) {
+	em.eventDelegate = ev
+}
+
+func (em *EntitySystemImpl) Initialize() {}
+
+//implements system interface
+func (em *EntitySystemImpl) Begin() {}
+
+//implements system interface
+func (em *EntitySystemImpl) ProcessEntities(actives *EntityBag) {}
+
+//implements system interface
+func (em *EntitySystemImpl) IsProcessing() bool {
+	return false
+}
+
+//implements system interface
+func (em *EntitySystemImpl) End() {}
+
+//implements system interface
+func (em *EntitySystemImpl) Process() {
+	if em.IsProcessing() {
+		em.Begin()
+		em.ProcessEntities(em.actives)
+		em.End()
+	}
+}
+
+func (em *EntitySystemImpl) SetSystemBit(bit int64) {
+	em.systemBit = bit
+}
+
+//implements EntitySystem
+func (em *EntitySystemImpl) Remove(e *Entity) {
+	em.actives.RemoveEntity(e)
+	e.RemoveSystemBit(em.systemBit)
+	em.eventDelegate.Removed(e)
+}
+
+//implements EntitySystem
+func (em *EntitySystemImpl) Change(e *Entity) {
 	contains := (em.systemBit & e.GetSystemBits()) == em.systemBit
 	interest := (em.typeFlags & e.GetTypeBits()) == em.typeFlags
 	if interest && !contains && em.typeFlags > 0 {
 		em.actives.Add(e)
 		e.AddSystemBit(em.systemBit)
-		em.Added(e)
+		em.eventDelegate.Added(e)
 	} else if !interest && contains && em.typeFlags > 0 {
 		em.Remove(e)
+	}
+}
+
+func (em *EntitySystemImpl) registerTypesNames(ctnames ...CTypeName) {
+	for _, ctname := range ctnames {
+		ctype := gComponentTypeManager.getTypeFor(ctname)
+		em.typeFlags |= ctype.GetBit()
 	}
 }
 
@@ -63,4 +113,16 @@ func (em *EntitySystemHelper) Change(e *Entity) {
 func GetMergedTypes(requiredType CTypeName, otherTypes ...CTypeName) []CTypeName {
 	itypes := append([]CTypeName{requiredType}, otherTypes[:1]...)
 	return append(itypes, otherTypes[1:]...)
+}
+
+// Called if the system has received a entity it is interested in, e.g. created or a component was added to it.
+//@param e the entity that was added to this system.
+func (em *EntitySystemImpl) Added(e *Entity) {
+	em.eventDelegate.Added(e)
+}
+
+// Called if a entity was removed from this system, e.g. deleted or had one of it's components removed.
+// @param e the entity that was removed from this system.
+func (em *EntitySystemImpl) Removed(e *Entity) {
+	em.eventDelegate.Removed(e)
 }
