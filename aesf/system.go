@@ -7,7 +7,6 @@ type System interface {
 	Initialize()
 	Begin()
 	Process()
-	processEntities(entities *EntityBag)
 	IsProcessing() bool
 	End()
 }
