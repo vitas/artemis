@@ -3,6 +3,7 @@ package aesf
 
 import (
 	"fmt"
+	//	. "github.com/vitas/artemis/aesf/utils"
 )
 
 type World interface {
@@ -10,13 +11,15 @@ type World interface {
 	Initialize()
 	GetEntityManager() *EntityManager
 	GetSystemManager() *SystemManager
+	GetGroupManager() *GroupManager
+	GetTagManager() *TagManager
 	GetManagers() []Manager
 	CreateEntity() *Entity
 	GetEntity(id int) *Entity
 	RefreshEntity(e *Entity)
 	DeleteEntity(e *Entity)
-	GetDelta() int
-	SetDelta(delta int)
+	GetDelta() int64
+	SetDelta(delta int64)
 	LoopStart()
 }
 
@@ -31,7 +34,7 @@ type EntityWorld struct {
 	systemManager *SystemManager
 	tagManager    *TagManager
 	groupManager  *GroupManager
-	delta         int
+	delta         int64
 	refreshed     *EntityBag
 	deleted       *EntityBag
 	managers      []Manager
@@ -45,66 +48,42 @@ func NewEntityWorld() EntityWorld {
 	w.entityManager = NewEntityManager(&w)
 	w.systemManager = NewSystemManager(&w)
 	w.tagManager = NewTagManager(&w)
+	w.groupManager = NewGroupManager(&w)
 	w.managers = append(w.managers, w.entityManager, w.tagManager, w.groupManager)
 	return w
 }
 
-func (w *EntityWorld) Initialize() {
-
-}
-
-func (w EntityWorld) String() string {
-	return fmt.Sprintf("[%s]", w.name)
-}
-
-func (w EntityWorld) GetEntityManager() *EntityManager {
-	return w.entityManager
-}
-
-func (w EntityWorld) GetSystemManager() *SystemManager {
-	return w.systemManager
-}
-
-func (w EntityWorld) GetManagers() []Manager {
-	return w.managers
-}
+func (w *EntityWorld) Initialize()                     {}
+func (w EntityWorld) String() string                   { return fmt.Sprintf("[%s]", w.name) }
+func (w EntityWorld) GetEntityManager() *EntityManager { return w.entityManager }
+func (w EntityWorld) GetSystemManager() *SystemManager { return w.systemManager }
+func (w EntityWorld) GetGroupManager() *GroupManager   { return w.groupManager }
+func (w EntityWorld) GetTagManager() *TagManager       { return w.tagManager }
+func (w EntityWorld) GetManagers() []Manager           { return w.managers }
 
 //Ensure all systems are notified of changes to this entity.
-func (w EntityWorld) RefreshEntity(e *Entity) {
-	w.refreshed.Add(e)
-}
+func (w EntityWorld) RefreshEntity(e *Entity) { w.refreshed.Add(e) }
+
+//Create and return a new or reused entity instance.
+func (w EntityWorld) CreateEntity() *Entity { return w.entityManager.Create() }
+
+//Get a entity having the specified id.
+func (w EntityWorld) GetEntity(id int) *Entity { return w.entityManager.GetEntity(id) }
+func (w EntityWorld) GetName() string          { return w.name }
+
+// Time since last game loop.
+// delta in milliseconds.
+func (w EntityWorld) GetDelta() int64 { return w.delta }
+
+// You must specify the delta for the game here.
+//delta time since last game loop.
+func (w *EntityWorld) SetDelta(delta int64) { w.delta = delta }
 
 //Delete the provided entity from the world.
 func (w EntityWorld) DeleteEntity(e *Entity) {
 	if !w.deleted.Contains(e) {
 		w.deleted.Add(e)
 	}
-}
-
-//Create and return a new or reused entity instance.
-func (w EntityWorld) CreateEntity() *Entity {
-	return w.entityManager.Create()
-}
-
-//Get a entity having the specified id.
-func (w EntityWorld) GetEntity(id int) *Entity {
-	return w.entityManager.GetEntity(id)
-}
-
-func (w EntityWorld) GetName() string {
-	return w.name
-}
-
-// Time since last game loop.
-// delta in milliseconds.
-func (w EntityWorld) GetDelta() int {
-	return w.delta
-}
-
-// You must specify the delta for the game here.
-//delta time since last game loop.
-func (w *EntityWorld) SetDelta(delta int) {
-	w.delta = delta
 }
 
 // Let framework take care of internal business.

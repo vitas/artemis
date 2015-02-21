@@ -1,7 +1,4 @@
-// Package main provides ...
 package aesf
-
-import ()
 
 const COMPONENT_BAG_CAP = 16
 const COMPONENT_ACTIVE_BAG_CAP = 64
@@ -34,10 +31,7 @@ func NewEntityManager(w World) *EntityManager {
 	return em
 }
 
-//implements Manager
-func (em *EntityManager) Initialize() {
-
-}
+func (em *EntityManager) Initialize() {}
 
 func (em *EntityManager) Create() *Entity {
 	e := em.removedAndAvailable.RemoveLast()
@@ -57,9 +51,7 @@ func (em *EntityManager) Create() *Entity {
 	return e
 }
 
-func (em *EntityManager) GetEntity(entityId int) *Entity {
-	return em.activeEntities.Get(entityId)
-}
+func (em *EntityManager) GetEntity(entityId int) *Entity { return em.activeEntities.Get(entityId) }
 
 //implements Manager
 func (em *EntityManager) Refresh(e *Entity) {
@@ -90,24 +82,16 @@ func (em *EntityManager) RemoveComponentsOfEntity(e *Entity) {
 }
 
 //Check if this entity is active, or has been deleted, within the framework.
-func (em *EntityManager) IsActive(id int) bool {
-	return em.activeEntities.Get(id) != nil
-}
+func (em *EntityManager) IsActive(id int) bool { return em.activeEntities.Get(id) != nil }
 
 //how many entities have been created since start.
-func (em *EntityManager) GetTotalCreated() int {
-	return em.totalCreated
-}
+func (em *EntityManager) GetTotalCreated() int { return em.totalCreated }
 
 //Get how many entities are active in this world.
-func (em *EntityManager) GetActiveEntityCount() int {
-	return em.count
-}
+func (em *EntityManager) GetActiveEntityCount() int { return em.count }
 
 //how many entities have been removed since start.
-func (em *EntityManager) GetTotalRemoved() int {
-	return em.totalRemoved
-}
+func (em *EntityManager) GetTotalRemoved() int { return em.totalRemoved }
 
 func (em *EntityManager) GetComponent(e *Entity, ctype *ComponentType) Component {
 	components := em.componentsByType[ctype.GetID()]
@@ -169,10 +153,7 @@ type IdentifierPool struct {
 	nextAvailableId int
 }
 
-func (ip *IdentifierPool) CheckIn(id int) {
-	ip.ids.Add(id)
-}
-
+func (ip *IdentifierPool) CheckIn(id int) { ip.ids.Add(id) }
 func (ip *IdentifierPool) CheckOut() int {
 	ip.ids.Pop()
 	ip.nextAvailableId++

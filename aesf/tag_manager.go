@@ -18,32 +18,17 @@ func NewTagManager(w World) *TagManager {
 }
 
 //implements Manager
-func (tm *TagManager) Initialize() {
-}
-
-func (tm *TagManager) GetTags() map[string]*Entity {
-	return tm.entityByTag
-}
-
-func (tm TagManager) String() string {
-	return fmt.Sprintf("TagManager")
-}
-
-func (tm *TagManager) Register(tag string, e *Entity) {
-	tm.entityByTag[tag] = e
-}
-
-func (tm *TagManager) Unregister(tag string) {
-	delete(tm.entityByTag, tag)
-}
+func (tm *TagManager) Initialize()                    {}
+func (tm *TagManager) GetTags() map[string]*Entity    { return tm.entityByTag }
+func (tm TagManager) String() string                  { return fmt.Sprintf("TagManager") }
+func (tm *TagManager) Register(tag string, e *Entity) { tm.entityByTag[tag] = e }
+func (tm *TagManager) Unregister(tag string)          { delete(tm.entityByTag, tag) }
 
 func (tm TagManager) IsRegistered(tag string) bool {
 	_, ok := tm.entityByTag[tag]
 	return ok
 }
-func (tm TagManager) GetEntity(tag string) *Entity {
-	return tm.entityByTag[tag]
-}
+func (tm TagManager) GetEntity(tag string) *Entity { return tm.entityByTag[tag] }
 
 //implements Manager
 func (tm *TagManager) Remove(e *Entity) {

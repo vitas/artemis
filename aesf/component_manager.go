@@ -1,9 +1,4 @@
-// Package aesf provides ...
 package aesf
-
-import (
-//"reflect"
-)
 
 var (
 	gComponentTypeManager ComponentTypeManager
@@ -31,13 +26,8 @@ func (ctm ComponentTypeManager) getTypeFor(ctname CTypeName) *ComponentType {
 	return ctype
 }
 
-func (ctm ComponentTypeManager) getBIT(ctname CTypeName) int64 {
-	return ctm.getTypeFor(ctname).GetBit()
-}
-
-func (ctm ComponentTypeManager) getID(ctname CTypeName) int {
-	return ctm.getTypeFor(ctname).GetID()
-}
+func (ctm ComponentTypeManager) getBIT(ctname CTypeName) int64 { return ctm.getTypeFor(ctname).GetBit() }
+func (ctm ComponentTypeManager) getID(ctname CTypeName) int    { return ctm.getTypeFor(ctname).GetID() }
 
 func (ctm *ComponentTypeManager) nextCtID(ctname CTypeName) int {
 	id := ctm.ctIDs[ctname]
@@ -67,6 +57,4 @@ func NewComponentMapper(ctname CTypeName, w World) *ComponentMapper {
 	return &ComponentMapper{ctype, ctname, w.GetEntityManager()}
 }
 
-func (cm *ComponentMapper) Get(e *Entity) Component {
-	return cm.entityManager.GetComponent(e, cm.ctype)
-}
+func (cm *ComponentMapper) Get(e *Entity) Component { return cm.entityManager.GetComponent(e, cm.ctype) }

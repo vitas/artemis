@@ -1,7 +1,5 @@
 package aesf
 
-import ()
-
 //callbacks
 type EntitySystemEventDelegate interface {
 	// Called if the system has received a entity it is interested in, e.g. created or a component was added to it.
@@ -45,34 +43,15 @@ func NewEntitySystem(world World, ctnames ...CTypeName) *EntitySystemImpl {
 	return es
 }
 
-func (em *EntitySystemImpl) SetWorld(w World) {
-	em.world = w
-}
-
-func (em *EntitySystemImpl) GetWorld() World {
-	return em.world
-}
-
-//implements EntitySystem
-func (em *EntitySystemImpl) SetEventDelegate(ev EntitySystemEventDelegate) {
-	em.eventDelegate = ev
-}
-
-func (em *EntitySystemImpl) Initialize() {}
-
-//implements system interface
-func (em *EntitySystemImpl) Begin() {}
-
-//implements system interface
-func (em *EntitySystemImpl) ProcessEntities(actives *EntityBag) {}
-
-//implements system interface
-func (em *EntitySystemImpl) CheckProcessing() bool {
-	return true
-}
-
-//implements system interface
-func (em *EntitySystemImpl) End() {}
+func (em *EntitySystemImpl) SetWorld(w World)                              { em.world = w }
+func (em *EntitySystemImpl) GetWorld() World                               { return em.world }
+func (em *EntitySystemImpl) SetEventDelegate(ev EntitySystemEventDelegate) { em.eventDelegate = ev }
+func (em *EntitySystemImpl) Initialize()                                   {}
+func (em *EntitySystemImpl) Begin()                                        {}
+func (em *EntitySystemImpl) ProcessEntities(actives *EntityBag)            {}
+func (em *EntitySystemImpl) CheckProcessing() bool                         { return false }
+func (em *EntitySystemImpl) End()                                          {}
+func (em *EntitySystemImpl) SetSystemBit(bit int64)                        { em.systemBit = bit }
 
 //implements system interface
 func (em *EntitySystemImpl) Process() {
@@ -81,10 +60,6 @@ func (em *EntitySystemImpl) Process() {
 		em.ProcessEntities(em.actives)
 		em.End()
 	}
-}
-
-func (em *EntitySystemImpl) SetSystemBit(bit int64) {
-	em.systemBit = bit
 }
 
 //implements EntitySystem

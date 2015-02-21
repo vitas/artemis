@@ -43,24 +43,10 @@ func NewSystemManager(w World) *SystemManager {
 	return &sm
 }
 
-//implements Manager
-func (sm *SystemManager) Initialize() {
-
-}
-
-//implements Manager
-func (sm *SystemManager) Refresh(e *Entity) {
-
-}
-
-//implements Manager
-func (sm *SystemManager) Remove(e *Entity) {
-
-}
-
-func (sm SystemManager) GetSystems() []EntitySystem {
-	return sm.bagged
-}
+func (sm *SystemManager) Initialize()               {}
+func (sm *SystemManager) Refresh(e *Entity)         {}
+func (sm *SystemManager) Remove(e *Entity)          {}
+func (sm SystemManager) GetSystems() []EntitySystem { return sm.bagged }
 
 func (sm *SystemManager) SetSystem(entitySystem EntitySystem) EntitySystem {
 	entitySystem.SetWorld(sm.world)

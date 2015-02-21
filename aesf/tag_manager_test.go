@@ -11,18 +11,16 @@ func (mw MockWorld) GetName() string                  { return "MockWorld" }
 func (mw *MockWorld) Initialize()                     {}
 func (mw MockWorld) GetEntityManager() *EntityManager { return nil }
 func (mw MockWorld) GetSystemManager() *SystemManager { return nil }
-func (mw MockWorld) RefreshEntity(e *Entity)          {}
-func (mw MockWorld) DeleteEntity(e *Entity)           {}
-func (mw MockWorld) CreateEntity() *Entity            { return nil }
+func (mw MockWorld) GetTagManager() *TagManager       { return nil }
+func (mw MockWorld) GetGroupManager() *GroupManager   { return nil }
+func (mw *MockWorld) CreateEntity() *Entity           { return nil }
+func (mw *MockWorld) DeleteEntity(e *Entity)          {}
+func (mw *MockWorld) RefreshEntity(e *Entity)         {}
 func (mw MockWorld) GetEntity(id int) *Entity         { return nil }
 func (mw MockWorld) GetManagers() []Manager           { return []Manager{} }
-func (mw MockWorld) GetDelta() int                    { return 0 }
-func (mw MockWorld) SetDelta(delta int)               {}
+func (mw MockWorld) GetDelta() int64                  { return 0 }
+func (mw *MockWorld) SetDelta(delta int64)            {}
 func (mw MockWorld) LoopStart()                       {}
-
-func init() {
-
-}
 
 func TestTagManager(t *testing.T) {
 	var (

@@ -18,12 +18,11 @@ func NewGroupManager(w World) *GroupManager {
 	gm := GroupManager{world: w}
 	gm.entitiesByGroup = make(map[string]*EntityBag)
 	gm.groupByEntity = make(map[int]string)
-	gm.emptyBag = NewEntityBag(1)
+	gm.emptyBag = NewEntityBag(0)
 	return &gm
 }
 
-func (gm *GroupManager) Initialize() {
-}
+func (gm *GroupManager) Initialize() {}
 
 //Set the group of the entity.
 func (gm *GroupManager) Set(group string, e *Entity) {
@@ -38,9 +37,7 @@ func (gm *GroupManager) Set(group string, e *Entity) {
 	gm.groupByEntity[e.GetID()] = group
 }
 
-func (gm GroupManager) String() string {
-	return fmt.Sprintf("GroupManager")
-}
+func (gm GroupManager) String() string { return fmt.Sprintf("GroupManager") }
 
 //Get all entities that belong to the provided group.
 func (gm *GroupManager) getEntities(group string) *EntityBag {
@@ -53,14 +50,10 @@ func (gm *GroupManager) getEntities(group string) *EntityBag {
 }
 
 //the name of the group that this entity belongs to, null if none.
-func (gm GroupManager) GetGroupOf(e *Entity) string {
-	return gm.groupByEntity[e.GetID()]
-}
+func (gm GroupManager) GetGroupOf(e *Entity) string { return gm.groupByEntity[e.GetID()] }
 
 //Checks if the entity belongs to any group.
-func (gm GroupManager) IsGrouped(e *Entity) bool {
-	return len(gm.GetGroupOf(e)) > 0
-}
+func (gm GroupManager) IsGrouped(e *Entity) bool { return len(gm.GetGroupOf(e)) > 0 }
 
 //Check if the entity is in the supplied group.
 func (gm GroupManager) IsInGroup(group string, e *Entity) bool {

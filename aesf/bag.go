@@ -4,47 +4,17 @@ import (
 	"fmt"
 )
 
-type Bag interface {
-	Get(idx int) Entity
-	Size() int
-	IsEmpty() bool
-	Contains(e Entity) bool
-	Add(e ...Entity)
-	Set(idx int, e Entity)
-	Remove(idx int) Entity
-	RemoveEntity(e Entity) bool
-	Grow()
-	GrowSize(sz int)
-}
-
 type EntityBag struct {
 	data []*Entity
 	size int
 }
 
-func NewEntityBag(c int) *EntityBag {
-	return &EntityBag{make([]*Entity, c), 0}
-}
-
-func (eb *EntityBag) String() string {
-	return fmt.Sprintf("%#v", eb.data)
-}
-
-func (eb *EntityBag) Get(idx int) *Entity {
-	return eb.data[idx]
-}
-
-func (eb *EntityBag) Size() int {
-	return eb.size
-}
-
-func (eb *EntityBag) GetCapacity() int {
-	return len(eb.data)
-}
-
-func (eb *EntityBag) IsEmpty() bool {
-	return eb.size == 0
-}
+func NewEntityBag(c int) *EntityBag       { return &EntityBag{make([]*Entity, c), 0} }
+func (eb *EntityBag) String() string      { return fmt.Sprintf("%#v", eb.data) }
+func (eb *EntityBag) Get(idx int) *Entity { return eb.data[idx] }
+func (eb *EntityBag) Size() int           { return eb.size }
+func (eb *EntityBag) GetCapacity() int    { return len(eb.data) }
+func (eb *EntityBag) IsEmpty() bool       { return eb.size == 0 }
 
 func (eb *EntityBag) Clear() {
 	for i := 0; i < eb.size-1; i++ {
@@ -120,30 +90,12 @@ type ComponentBag struct {
 	size int
 }
 
-func NewComponentBag(c int) *ComponentBag {
-	return &ComponentBag{make([]Component, c), 0}
-}
-
-func (cb *ComponentBag) String() string {
-	return fmt.Sprintf("%#v", cb.data)
-}
-
-func (cb *ComponentBag) Get(idx int) Component {
-	return cb.data[idx]
-}
-
-func (cb *ComponentBag) Size() int {
-	return cb.size
-}
-
-func (cb *ComponentBag) GetCapacity() int {
-	return len(cb.data)
-}
-
-func (cb *ComponentBag) IsEmpty() bool {
-	return cb.size == 0
-}
-
+func NewComponentBag(c int) *ComponentBag      { return &ComponentBag{make([]Component, c), 0} }
+func (cb *ComponentBag) String() string        { return fmt.Sprintf("%#v", cb.data) }
+func (cb *ComponentBag) Get(idx int) Component { return cb.data[idx] }
+func (cb *ComponentBag) Size() int             { return cb.size }
+func (cb *ComponentBag) GetCapacity() int      { return len(cb.data) }
+func (cb *ComponentBag) IsEmpty() bool         { return cb.size == 0 }
 func (cb *ComponentBag) Clear() {
 	for i := 0; i < cb.size-1; i++ {
 		cb.data[i] = nil
